@@ -1,9 +1,15 @@
-'use client';
+import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import './quiz.css';
 
-import { useState } from "react";
-import Image from "next/image";
+declare global {
+  interface Window {
+    styleQuizConfig: {
+      baseUrl: string;
+    }
+  }
+}
 
-// Style rankings from lowest to highest
 const styleRankings = [
   {
     title: "Comfy Casual",
@@ -135,7 +141,15 @@ const questions = [
   }
 ];
 
-export default function Home() {
+const StyleImage = ({ src, alt, className }: { src: string, alt: string, className: string }) => (
+  <img 
+    src={`${window.styleQuizConfig.baseUrl}/wp-content/themes/your-theme/style-quiz/images${src}`}
+    alt={alt}
+    className={className}
+  />
+);
+
+const StyleQuiz: React.FC = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>(new Array(questions.length).fill(-1));
   const [showResults, setShowResults] = useState(false);
@@ -233,11 +247,9 @@ export default function Home() {
               {calculateScore()}/100
             </div>
             <div className="mb-6">
-              <Image
+              <StyleImage
                 src={getStyleRanking(calculateScore())?.image || '/style-default.webp'}
                 alt={getStyleRanking(calculateScore())?.title || 'Style Result'}
-                width={200}
-                height={200}
                 className="mx-auto rounded-lg shadow-lg"
               />
             </div>
@@ -262,4 +274,11 @@ export default function Home() {
       </div>
     </div>
   );
-}
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('style-quiz-root');
+  if (root) {
+    ReactDOM.render(<StyleQuiz />, root);
+  }
+}); 
